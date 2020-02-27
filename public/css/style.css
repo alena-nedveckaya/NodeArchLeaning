@@ -1,0 +1,8 @@
+.wrapper_input{
+    margin: 10px 0;
+    display: flex;
+    width: 400px;
+}
+.input_label{
+    flex: 1 0 0;
+}
