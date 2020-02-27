@@ -30,7 +30,7 @@ function validate (params) {
         formBodyWithErrors[2] = formBodyWithErrors[2]+`<span style=${errorStyle}>Введите имя</span>`;
         isValid = false;
     }
-    if (name.length < 3) {
+    else if (name.length < 3) {
         formBodyWithErrors[2] = formBodyWithErrors[2] + `<span style=${errorStyle}>Недостаточная длина имени</span>`;
         isValid = false;
     }
@@ -39,7 +39,7 @@ function validate (params) {
         formBodyWithErrors[5] = formBodyWithErrors[5] + `<span style=${errorStyle}>Введите ваш возраст</span>`;
         isValid = false;
     }
-    if(!/[0-9]+$/.test(age)) {
+    else if(!/[0-9]+$/.test(age)) {
         formBodyWithErrors[5] = formBodyWithErrors[5] + `<span style=${errorStyle}>Введите корректный возраст</span>`;
         isValid = false;
     }
