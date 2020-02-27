@@ -7,7 +7,7 @@ const wrapperStyle = `margin-bottom: 10px;display:flex`;
 const labelStyle = `display:flex;width:300px;justify-content:space-between`;
 
 const formBody = [
-        `<form method="GET"  action="http://localhost:3000/form">`,
+        `<form method="GET"  action="/form">`,
         `<div style="${wrapperStyle}">`,
         `<label style="${labelStyle}"><span>Ваше имя:</span> <input type="text" id="name" name="name" value=""/></label>`,
         `</div>`,
