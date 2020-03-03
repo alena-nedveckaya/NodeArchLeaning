@@ -1,0 +1,31 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.options{
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.option{
+  margin-top: 4px;
+}
+
+.result_title{
+  font-weight: bold;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.res{
+  margin-top: 4px;
+}
+
+.allVotes{
+  margin-top: 10px;
+}
