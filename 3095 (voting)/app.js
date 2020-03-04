@@ -4,6 +4,7 @@ const app = express();
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const statistics = require('./statistic');
 
 app.use(express.urlencoded({extended:true}));
 app.use(express.static('public'));
@@ -23,11 +24,7 @@ function logLineSync(logFilePath,logLine) {
   fs.closeSync(logFd);
 }
 
-const statistics = {
-      fb : {name: 'Facebook', code: 'fb',  count:0},
-      vk: {name:'Вконтакте', code: 'vk', count: 0},
-      inst: {name:'Инстаграм', code: 'inst' ,count:0}
-};
+
 
 const options =  [
     {value:'Facebook', code: 'fb'},
