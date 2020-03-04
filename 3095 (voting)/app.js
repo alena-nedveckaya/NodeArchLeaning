@@ -2,15 +2,16 @@
 const express = require('express');
 const app = express();
 const fs = require('fs');
+const fs2 = require('fs').promises;
 const path = require('path');
 const os = require('os');
-const statistics = require('./statistic');
 
 app.use(express.urlencoded({extended:true}));
 app.use(express.static('public'));
 
 const port = 3095;
 const logFileName = path.join(__dirname, '_server.log');
+const statisticsFile = path.join(__dirname, 'statistic.json');
 
 function logLineSync(logFilePath,logLine) {
   const logDT=new Date();
@@ -48,9 +49,20 @@ app.get('/variants', (req, res) => {
 
 app.post('/vote', (req, res) => {
 
+  const rawdata  = fs.readFileSync(statisticsFile);
+  let statistics = JSON.parse(rawdata);
+
   const socialNetwork=req.body.social;
+
   statistics[socialNetwork].count += 1;
   logLineSync(logFileName,`[${port}] `+'service /vote called');
+
+  fs.writeFile('./statistic.json', JSON.stringify(statistics), (err) => {
+
+    if (err) throw err;
+    logLineSync(logFileName,`[${port}] `+'statistics saved!');
+    console.log('statistics saved!');
+  });
 
   res.redirect('/results.html')
 });
@@ -64,6 +76,9 @@ app.get('/stat', (req, res) => {
   res.header('Access-Control-Allow-Headers', "*");
 
   logLineSync(logFileName,`[${port}] `+'service /stat called');
+
+  const rawdata  = fs.readFileSync(statisticsFile);
+  let statistics = JSON.parse(rawdata);
   res.json(statistics);
 
 });
