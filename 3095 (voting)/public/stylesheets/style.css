@@ -29,3 +29,12 @@ a {
 .allVotes{
   margin-top: 10px;
 }
+
+.download_wrap{
+  margin-top: 20px;
+  display: flex;
+}
+
+.download_wrap form{
+  margin-right: 20px;
+}

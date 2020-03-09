@@ -47,6 +47,58 @@ app.get('/variants', (req, res) => {
 
 });
 
+app.post('/getXML', (req, res) => {
+  logLineSync(logFileName,`[${port}] `+"/getXML called");
+
+  res.setHeader("Content-Disposition",  'attachment; filename="results.xml"');
+  res.setHeader("Content-type", "text/xml");
+
+  const rawData = fs.readFileSync(statisticsFile);
+  const statistics = JSON.parse(rawData);
+
+  let xml = '';
+  for(let key in statistics) {
+    xml += `
+            <${key}>
+                <name>${statistics[key].name}</name>
+                <code>${statistics[key].code}</code>
+                <count>${statistics[key].count}</count>
+            </${key}>
+`
+  };
+
+  res.send(xml)
+});
+
+app.post('/getJSON', (req, res) => {
+  logLineSync(logFileName,`[${port}] `+"/getJSON called");
+
+  res.setHeader("Content-Disposition",  'attachment; filename="results.json"');
+  res.setHeader("Content-type", "text/json");
+
+  const rawData = fs.readFileSync(statisticsFile);
+
+  res.send(rawData)
+});
+
+app.post('/getHTML', (req, res) => {
+  logLineSync(logFileName,`[${port}] `+"/getHTML called");
+
+  res.setHeader("Content-Disposition",  'attachment; filename="results.html"');
+  res.setHeader("Content-type", "text/html");
+
+  const rawData = fs.readFileSync(statisticsFile);
+  const statistics = JSON.parse(rawData);
+
+  let html = '';
+
+  for (let key in statistics){
+    html += `<div class="res">${statistics[key].name}: ${statistics[key].count}</div>`
+  }
+
+  res.send(html)
+});
+
 app.post('/vote', (req, res) => {
 
   const rawdata  = fs.readFileSync(statisticsFile);

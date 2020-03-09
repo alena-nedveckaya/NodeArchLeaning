@@ -20,8 +20,5 @@ async function getResults() {
 
     const wrapper = document.querySelector('.stat_wrapper');
     wrapper.appendChild(div)
-
-
-
-
 }
+
