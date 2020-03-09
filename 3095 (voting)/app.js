@@ -123,9 +123,8 @@ app.post('/vote', (req, res) => {
 
 app.get('/stat', (req, res) => {
 
-  res.setHeader("X-XSS-Protection", "0"); // добавляем в ответ специальный заголовок, чтобы отключить защитный механизм в Chrome
-  res.header('Access-Control-Allow-Origin', "*");
-  res.header('Access-Control-Allow-Headers', "*");
+  res.setHeader('Cache-Controls', 'no-cache');
+  res.setHeader('Expires', '0');
 
   logLineSync(logFileName,`[${port}] `+'service /stat called');
 
