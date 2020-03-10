@@ -39,7 +39,6 @@ app.get('/', (req, res) => {
 
 app.get('/variants', (req, res) => {
 
-  res.setHeader("X-XSS-Protection", "0"); // добавляем в ответ специальный заголовок, чтобы отключить защитный механизм в Chrome
   res.header('Access-Control-Allow-Origin', "*");
   res.header('Access-Control-Allow-Headers', "*");
   logLineSync(logFileName,`[${port}] `+'service /variants called');
@@ -47,56 +46,45 @@ app.get('/variants', (req, res) => {
 
 });
 
-app.post('/getXML', (req, res) => {
-  logLineSync(logFileName,`[${port}] `+"/getXML called");
-
-  res.setHeader("Content-Disposition",  'attachment; filename="results.xml"');
-  res.setHeader("Content-type", "text/xml");
-
+app.get('/getStat', (req, res) => {
+  logLineSync(logFileName,`[${port}] `+"/getStat called");
   const rawData = fs.readFileSync(statisticsFile);
   const statistics = JSON.parse(rawData);
+  let resBody = '';
 
-  let xml = '';
-  for(let key in statistics) {
-    xml += `
-            <${key}>
-                <name>${statistics[key].name}</name>
-                <code>${statistics[key].code}</code>
-                <count>${statistics[key].count}</count>
-            </${key}>
+  const accept=req.headers['accept'];
+
+  if (accept === 'text/xml'){
+
+    res.setHeader("Content-type", "text/xml");
+
+    for(let key in statistics) {
+      resBody += `
+      <${key}>
+          <name>${statistics[key].name}</name>
+          <code>${statistics[key].code}</code>
+          <count>${statistics[key].count}</count>
+      </${key}>
 `
-  };
+    }
+  }
+  else if (accept === 'text/json'){
+    res.setHeader("Content-type", "text/json");
+    resBody += rawData;
+  }
+  else if (accept === 'text/html'){
+    res.setHeader("Content-type", "text/html");
 
-  res.send(xml)
-});
-
-app.post('/getJSON', (req, res) => {
-  logLineSync(logFileName,`[${port}] `+"/getJSON called");
-
-  res.setHeader("Content-Disposition",  'attachment; filename="results.json"');
-  res.setHeader("Content-type", "text/json");
-
-  const rawData = fs.readFileSync(statisticsFile);
-
-  res.send(rawData)
-});
-
-app.post('/getHTML', (req, res) => {
-  logLineSync(logFileName,`[${port}] `+"/getHTML called");
-
-  res.setHeader("Content-Disposition",  'attachment; filename="results.html"');
-  res.setHeader("Content-type", "text/html");
-
-  const rawData = fs.readFileSync(statisticsFile);
-  const statistics = JSON.parse(rawData);
-
-  let html = '';
-
-  for (let key in statistics){
-    html += `<div class="res">${statistics[key].name}: ${statistics[key].count}</div>`
+    for (let key in statistics){
+      resBody += `<div class="res">${statistics[key].name}: ${statistics[key].count}</div>\r\n`
+    }
   }
 
-  res.send(html)
+  res.setHeader("Content-Disposition",  'inline; filename="results.xml"');
+  res.setHeader('Cache-Controls', 'no-cache');
+  res.setHeader('Expires', '0');
+
+  res.send(resBody)
 });
 
 app.post('/vote', (req, res) => {

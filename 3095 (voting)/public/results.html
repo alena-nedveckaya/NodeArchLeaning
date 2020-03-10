@@ -11,10 +11,11 @@
 <div class="result_title">Результаты</div>
 <div class="stat_wrapper"></div>
 <div class="download_wrap">
-    <form action="/getXML" method="post"><button type="submit">Скачать XML</button></form>
-    <form action="/getJSON" method="post"><button  type="submit">Скачать JSON</button></form>
-    <form action="/getHTML" method="post"><button  type="submit">Скачать HTML</button></form>
+   <button type="submit" id="XML" data-format = "xml">Скачать XML</button>
+    <button  type="submit" id="JSON" data-format = "json">Скачать JSON</button>
+   <button  type="submit" id="HTML" data-format = "html">Скачать HTML</button>
 </div>
+<div class="viewRes"></div>
 </body>
 <script src="javascripts/results.js"></script>
 </html>

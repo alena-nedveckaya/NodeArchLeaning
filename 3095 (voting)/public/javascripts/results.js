@@ -22,3 +22,31 @@ async function getResults() {
     wrapper.appendChild(div)
 }
 
+const button_wrap = document.querySelector('.download_wrap');
+const getStatistics = async(e) => {
+    const button = e.target;
+    const format = button.getAttribute('data-format');
+    const headers = {'Accept': `text/${format}`};
+
+    console.log(button, format);
+    let res =  await fetch('/getStat', {
+        method: 'GET',
+        headers
+    });
+
+    res = await res.text();
+    console.log('res', res)
+
+    let textArea = document.querySelector('.textarea');
+    if (textArea)
+        textArea.value = res;
+   else{
+        textArea = `<textarea class="textarea">${res}</textarea>`;
+        document.querySelector('.viewRes').innerHTML = textArea;
+
+    }
+
+};
+
+button_wrap.addEventListener('click', getStatistics);
+

@@ -35,6 +35,13 @@ a {
   display: flex;
 }
 
-.download_wrap form{
-  margin-right: 20px;
+.download_wrap button{
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.textarea{
+  width: 500px;
+  height: 150px;
+  margin-top: 20px;
 }
