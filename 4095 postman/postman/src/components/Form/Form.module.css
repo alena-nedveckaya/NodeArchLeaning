@@ -1,0 +1,17 @@
+.section{
+    margin-top: 20px;
+}
+
+.sectionHeader{
+    margin-bottom: 10px;
+}
+
+.addMore{
+    width: 735px;
+    text-align: end;
+    color: cadetblue;
+}
+
+.addMore span{
+    cursor: pointer;
+}

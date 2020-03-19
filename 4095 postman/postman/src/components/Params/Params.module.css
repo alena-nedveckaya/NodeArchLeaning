@@ -1,0 +1,23 @@
+.wrapper{
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.icon{
+    vertical-align: center;
+    cursor: pointer;
+}
+
+.icon svg{
+    width: 17px;
+    height: 20px;
+
+}
+
+.input{
+    height: 24px;
+    margin-right: 10px;
+    width: 350px;
+    padding-left: 10px;
+}
