@@ -1,0 +1,19 @@
+.wrapper{
+
+}
+
+.input{
+    display: none;
+}
+
+.label{
+    border: 1px solid lightgrey;
+    padding: 6px 10px;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.labelChecked {
+    color: white;
+    background-color: lightgrey;
+}

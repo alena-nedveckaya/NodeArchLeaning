@@ -4,6 +4,7 @@ import './App.css';
 import {ContextApp, initialState, reducer} from "./reducers/reducer.js";
 
 import Form from "./components/Form/Form";
+import UrlList from "./components/UrlList/UrlLIst";
 
 const StoreContext = React.createContext(initialState);
 
@@ -13,7 +14,10 @@ const App = () => {
 
     return (
         <ContextApp.Provider value={{dispatch, state}}>
-           <Form />
+            <div className={'wrapper'}>
+                <UrlList />
+               <Form />
+            </div>
         </ContextApp.Provider>
     )
 };

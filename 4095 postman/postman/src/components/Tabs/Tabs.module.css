@@ -1,0 +1,13 @@
+.list{
+    display: flex;
+   padding: 0;
+}
+.tab{
+    list-style: none;
+    padding: 5px 10px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+.selected{
+    border-bottom: 2px solid grey;
+}

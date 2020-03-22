@@ -1,5 +1,6 @@
 .section{
     margin-top: 20px;
+
 }
 
 .sectionHeader{
@@ -14,4 +15,17 @@
 
 .addMore span{
     cursor: pointer;
+}
+
+.formDataWrap{
+    display: flex;
+    flex-direction: row;
+}
+
+.radioButton{
+    margin-right: 10px;
+}
+
+.error{
+    color: darkred;
 }

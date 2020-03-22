@@ -1,0 +1,58 @@
+.wrapper{
+    display: flex;
+    padding: 10px;
+    cursor: pointer;
+    justify-content: space-between;
+}
+
+.wrapper:hover{
+    background-color: lightgrey;
+}
+
+.method{
+    color:white;
+    font-weight: bold;
+    border-radius: 2px;
+    padding: 2px 4px;
+    margin-right: 10px;
+    align-self: baseline;
+}
+
+.get{
+    background-color: goldenrod;
+}
+
+.post{
+    background-color: mediumseagreen;
+
+}
+
+.url{
+    flex: 1 0 0;
+    align-self: flex-start;
+    margin-right: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: pre-wrap;
+}
+
+.iconWrapper{
+    align-self: center;
+}
+
+.icon{
+    visibility: hidden;
+    vertical-align: center;
+    cursor: pointer;
+    align-content: center;
+}
+
+.icon svg{
+    width: 17px;
+    height: 20px;
+
+}
+
+.wrapper:hover .icon{
+    visibility: visible;
+}

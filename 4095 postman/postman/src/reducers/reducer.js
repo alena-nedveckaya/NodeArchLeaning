@@ -1,11 +1,22 @@
 import React from "react";
 import {
     ACCEPT,
-    ADD_FIELD_TO_ARRAY, CACHE_CONTROL,
+    ADD_FIELD_TO_ARRAY,
+    BODY,
+    CACHE_CONTROL,
     CHANGE_FORM_FIELD,
     CHANGE_FORM_FIELD_IN_ARRAY,
     CONTENT_TYPE,
-    DELETE_FIELD_FROM_ARRAY, METHOD, PARAMS, REQUEST_PAYLOAD
+    DELETE_FIELD_FROM_ARRAY,
+    HEADERS,
+    METHOD,
+    PARAMS,
+    URL,
+    REQUEST_PAYLOAD,
+    SET_ERROR,
+    SET_REQUEST_LIST,
+    RESET_ERRORS,
+    SET_REQUEST_TO_FORM
 } from "./constants";
 
 export const ContextApp = React.createContext();
@@ -16,10 +27,23 @@ export const initialState = {
             [METHOD]: 'GET',
             [URL]: '',
             [PARAMS]: [{key:'', value:''}],
-            [ACCEPT]: '',
+            [HEADERS] : [{key:'', value:''}],
+            [CONTENT_TYPE]: 'application/x-www-form-urlencoded',
+            [BODY]:[{key:'', value:''}]
+/*            [ACCEPT]: '',
             [CACHE_CONTROL]: '',
-            [CONTENT_TYPE]: '',
-            [REQUEST_PAYLOAD]: ''
+            [REQUEST_PAYLOAD]: ''*/
+        },
+        errors: {
+            [URL]: '',
+            [PARAMS]: '',
+            [HEADERS] : '',
+            [BODY]: ''
+        },
+        res:{
+            body:{},
+            headers:[],
+
         }
 };
 
@@ -57,6 +81,41 @@ export const reducer = (state, action) => {
             return {
                 ...state,
                 form: {...state.form, [action.field]: newArr}
+            }
+        }
+
+        case RESET_ERRORS: {
+            console.log( 'RESET_ERRORS', {...initialState.errors})
+            return {
+                ...state,
+                errors: {...initialState.errors}
+            }
+        }
+
+        case SET_ERROR: {
+            return {
+                ...state,
+                errors: {...state.errors, [action.field]: action.error }
+            }
+        }
+
+        case SET_REQUEST_LIST: {
+            return {
+                ...state,
+                list: action.data
+            }
+        }
+        case SET_REQUEST_TO_FORM: {
+            return {
+                ...state,
+                form: {
+                    [METHOD]: action.data[METHOD],
+                    [URL]: action.data[URL],
+                    [PARAMS]: action.data[PARAMS].length ? action.data[PARAMS] : [{key: '', value: ''}],
+                    [HEADERS]: action.data[HEADERS].length ? action.data[HEADERS] : [{key: '', value: ''}],
+                    [CONTENT_TYPE]: action.data[CONTENT_TYPE],
+                    [BODY]: action.data[BODY].length ? action.data[BODY] : [{key: '', value: ''}],
+                }
             }
         }
         default:

@@ -15,7 +15,7 @@ const URLInput = () => {
     };
 
     return (
-        <input className={style.input} value={form.url} onChange={handleChange}/>
+        <input className={style.input} value={form[URL]} onChange={handleChange}/>
     )
 };
 
