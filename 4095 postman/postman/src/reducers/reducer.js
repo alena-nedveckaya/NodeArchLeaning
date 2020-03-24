@@ -16,7 +16,14 @@ import {
     SET_ERROR,
     SET_REQUEST_LIST,
     RESET_ERRORS,
-    SET_REQUEST_TO_FORM
+    SET_REQUEST_TO_FORM,
+    SET_BODY_RESPONSE,
+    SET_HEADERS_RESPONSE,
+    SET_RESPONSE,
+    RAW_BODY,
+    ADD_TO_LIST,
+    COMMON,
+    SET_RESPONSE_ERROR, RESET_RESPONSE, RESET_REQUEST
 } from "./constants";
 
 export const ContextApp = React.createContext();
@@ -29,7 +36,8 @@ export const initialState = {
             [PARAMS]: [{key:'', value:''}],
             [HEADERS] : [{key:'', value:''}],
             [CONTENT_TYPE]: 'application/x-www-form-urlencoded',
-            [BODY]:[{key:'', value:''}]
+            [BODY]:[{key:'', value:''}],
+            [RAW_BODY]: ''
 /*            [ACCEPT]: '',
             [CACHE_CONTROL]: '',
             [REQUEST_PAYLOAD]: ''*/
@@ -38,12 +46,13 @@ export const initialState = {
             [URL]: '',
             [PARAMS]: '',
             [HEADERS] : '',
-            [BODY]: ''
+            [BODY]: '',
+
         },
         res:{
-            body:{},
+            body:'',
             headers:[],
-
+            errors:''
         }
 };
 
@@ -77,7 +86,9 @@ export const reducer = (state, action) => {
             const newArr = [...state.form[action.field]];
             if (newArr.length > 1)
                 newArr.splice(action.index, 1);
-
+            else {
+                newArr.splice(action.index, 1, {key:'', value:''});
+            }
             return {
                 ...state,
                 form: {...state.form, [action.field]: newArr}
@@ -85,7 +96,6 @@ export const reducer = (state, action) => {
         }
 
         case RESET_ERRORS: {
-            console.log( 'RESET_ERRORS', {...initialState.errors})
             return {
                 ...state,
                 errors: {...initialState.errors}
@@ -105,6 +115,12 @@ export const reducer = (state, action) => {
                 list: action.data
             }
         }
+        case ADD_TO_LIST:{
+            return {
+                ...state,
+                list: [...state.list, action.data]
+            }
+        }
         case SET_REQUEST_TO_FORM: {
             return {
                 ...state,
@@ -115,9 +131,42 @@ export const reducer = (state, action) => {
                     [HEADERS]: action.data[HEADERS].length ? action.data[HEADERS] : [{key: '', value: ''}],
                     [CONTENT_TYPE]: action.data[CONTENT_TYPE],
                     [BODY]: action.data[BODY].length ? action.data[BODY] : [{key: '', value: ''}],
+                    [RAW_BODY]: action.data[RAW_BODY],
                 }
             }
         }
+
+        case SET_RESPONSE: {
+            return {
+                ...state,
+                res: {...state.res, [action.key]: action.data}
+            }
+        }
+
+        case RESET_REQUEST: {
+            console.log('initialState', initialState)
+            return {
+                ...state,
+                form: {...initialState.form},
+                res: {...initialState.res},
+                errors: {...initialState.errors}
+            }
+        }
+
+        case SET_RESPONSE_ERROR:{
+            return {
+                ...state,
+                res: {...state.res, errors: action.errors}
+            }
+        }
+
+        case RESET_RESPONSE : {
+            return {
+                ...state,
+                res: {...initialState.res}
+            }
+        }
+
         default:
             return state
     }

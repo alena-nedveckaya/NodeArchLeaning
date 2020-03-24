@@ -4,6 +4,7 @@ const logLineAsync = require('./utils').logLineAsync;
 const path = require('path');
 const FormData  = require('form-data');
 const cors = require('cors');
+const fetch = require("isomorphic-fetch");
 
 const webServer = express();
 const port = '4095';
@@ -28,20 +29,42 @@ function noEmptyValue(data) {
     return text;
 }
 
+function doubleHeaders(data) {
+    const headers = data.map(item => item.key);
+
+    headers.sort();
+
+    const double = [];
+    for (let i = 0; i < headers.length; i++) {
+        if (headers[i] === headers[i+1]){
+            double.push(headers[i])
+        }
+    }
+
+    let textError = '';
+    if (double.length > 0){
+        textError = 'У Вас дублируются следующие заголовки: '+double.join(',')
+    }
+    return textError
+}
+
 function validation (data) {
     const errors = {};
 
     if (!data.url){
         errors.url = 'Укажите URL запроса';
     }
+    const doubleHeadersErrors = doubleHeaders(data.headers);
 
     const paramsErrors = noEmptyValue(data.params);
     const headersErrors = noEmptyValue(data.headers);
     const bodyErrors = noEmptyValue(data.body);
 
    if ( paramsErrors.length) errors.params =  paramsErrors;
-   if ( headersErrors.length) errors.headers =  headersErrors;
+   if ( headersErrors.length || doubleHeadersErrors) errors.headers =  headersErrors+doubleHeadersErrors;
+
    if ( bodyErrors.length) errors.body =  bodyErrors;
+
 
 
    return errors
@@ -66,7 +89,7 @@ webServer.post('/save', async (req, res) => {
 
     }
 
-    res.send({errorCode : 0, errorDescription:'', list})
+    res.send({errorCode : 0, errorDescription:'', request: req.body})
 });
 
 webServer.post('/send', async (req, res) => {
@@ -75,25 +98,61 @@ webServer.post('/send', async (req, res) => {
     res.setHeader("Access-Control-Allow-Origin","*"); // разрешаем запросы с любого origin, вместо * здесь может быть ОДИН origin (протокол+домен+порт)
     res.setHeader("Access-Control-Allow-Headers","Content-Type"); // разрешаем заголовок запроса Content-Type
     const errors = validation(req.body);
+    let list=[];
+    let response = {};
+    let responseHeaders = {};
 
     if (Object.keys(errors).length){
         res.send({errorCode: 1, errorDescription: errors})
     }
 
     else {
+        const rawData = await fs.readFile(requestListFile);
+        list = JSON.parse(rawData);
+        list.push(req.body);
+        await fs.writeFile(requestListFile, JSON.stringify(list)) .then(() => {
+            console.log('JSON saved');
+        });
         let body = '';
         if (req.body.contentType === 'application/x-www-form-urlencoded'){
             req.body.body.forEach((item, index) => {
-                body += `${index !== 0 && '&'}${item.key}=${encodeURIComponent(item.value)}`
+                body += `${index !== 0 ? '&' : ''}${item.key}=${encodeURIComponent(item.value)}`
             })
         }
         else if (req.body.contentType === 'multipart/form-data'){
             body = new FormData(req.body.body)
         }
+        else if (req.body.contentType === 'raw'){
+            body = req.body.rawBody;
+        }
 
-        console.log('body', body)
+        let {url} = req.body;
+        const { headers, method, params} = req.body;
+
+        if (params.length && method === 'GET'){
+            url += '?';
+            params.forEach((item, index) => {
+                url += `${index !== 0 ? '&' : ''}${item.key}=${encodeURIComponent(item.value)}`
+            })
+        }
+        try {
+
+            const proxy_response = await fetch(url, {headers, method, body});
+
+            const {status, statusText, headers: {_headers}} = proxy_response;
+            responseHeaders = _headers;
+
+            response = await proxy_response.text();
+            console.log( 'proxy_response', response)
+            res.send({errorCode: 0, errorDescription: '', request: req.body, response, headers: {status, statusText, ...responseHeaders}})
+        }
+        catch (e) {
+            logLineAsync(logFileName,`[${port}] `+"/proxy_request is failed" + e);
+
+            res.send({errorCode:2, errorDescription:  e.message})
+        }
     }
-    res.send({errorCode : 0, errorDescription:''})
+   
 });
 
 webServer.get('/list', async(req, res) => {
@@ -121,4 +180,4 @@ webServer.post('/deleteItem', async (req, res) => {
     res.send(list)
 });
 
-webServer.listen(port, () => console.log(`server is running on ${port} `))
+webServer.listen(port, () => console.log(`server is running on ${port} `));

@@ -7,21 +7,23 @@ import {deleteRequestFromList} from "../../api/api";
 import style from './RequestItem.module.css';
 import DeleteIcon from "../DeleteIcon/DeleteIcon";
 import {ContextApp} from "../../reducers/reducer";
-import {setRequestList, setRequestToForm} from "../../reducers/actions";
+import {resetResponse, setRequestList, setRequestToForm, setResponseError} from "../../reducers/actions";
 
 
 const RequestItem = props => {
-    const {state: {list}, dispatch} = useContext(ContextApp);
+    const {state: {list,}, dispatch} = useContext(ContextApp);
 
     const setList = useCallback((list) => dispatch(setRequestList(list)), [dispatch]);
     const setRequest = useCallback((data) => dispatch(setRequestToForm(data)), [dispatch]);
+    const resetResp = useCallback(() => dispatch(resetResponse()), [dispatch]);
 
     const handleClickDelete = async() => {
-        const res = await deleteRequestFromList({deleteIndex: props.index})
+        const res = await deleteRequestFromList({deleteIndex: props.index});
         setList(res);
     };
 
     const handleClickItem = () =>{
+        resetResp();
         setRequest(props);
     };
 

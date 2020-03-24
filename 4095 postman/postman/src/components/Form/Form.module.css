@@ -27,5 +27,16 @@
 }
 
 .error{
-    color: darkred;
+    color: red;
+}
+
+.rawTextarea{
+    width: 400px;
+    height: 300px;
+}
+
+.resetWrapper{
+    display: flex;
+    flex-direction: row-reverse;
+    margin-top: 20px;
 }

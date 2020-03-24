@@ -1,0 +1,18 @@
+.textarea{
+    width: 400px;
+    height: 300px;
+
+}
+
+.headersWrapper{
+    display: flex;
+    padding-bottom: 4px;
+}
+
+.headerName{
+    min-width: 200px;
+}
+
+.errors{
+    color: red;
+}

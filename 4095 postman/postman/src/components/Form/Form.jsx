@@ -4,11 +4,11 @@ import Method from "../Method/Method";
 import URLInput from "../URLInput/URLInput";
 import {ContextApp} from "../../reducers/reducer";
 import Params from "../Params/Params";
-import {BODY, CONTENT_TYPE, HEADERS, PARAMS, URL} from "../../reducers/constants";
+import {BODY, COMMON, CONTENT_TYPE, HEADERS, PARAMS, RAW_BODY, URL} from "../../reducers/constants";
 import {
-    addFieldToArray,
-    changeFieldForm, resetErrorsToForm,
-    setErrorToForm, setRequestList
+    addFieldToArray, addToList,
+    changeFieldForm, resetErrorsToForm, resetRequestToForm,
+    setErrorToForm, setRequestList, setResponseError, setResponseToForm
 } from "../../reducers/actions";
 import DeleteIcon from "../DeleteIcon/DeleteIcon";
 
@@ -20,14 +20,16 @@ import {saveInList, sendRequest} from "../../api/api";
 
 
 const Form = () => {
-    const {state: {form, errors}, dispatch} = useContext(ContextApp);
-    console.log('errors FORM', errors )
+    const {state: {form, errors, res}, dispatch} = useContext(ContextApp);
 
     const addMore = useCallback((field) => () => dispatch(addFieldToArray(field, {key: '', value: ''})), [dispatch]);
-    const handleChangeRadio = useCallback((e) => dispatch(changeFieldForm([CONTENT_TYPE], e.target.value)), [dispatch]);
+    const changeField = useCallback((field, value) => dispatch(changeFieldForm(field, value)), [dispatch]);
     const setError = useCallback((field, error) => dispatch(setErrorToForm(field, error)), [dispatch]);
+    const setResponseErr = useCallback(( error) => dispatch(setResponseError( error)), [dispatch]);
     const resetError = useCallback(() => dispatch(resetErrorsToForm()), [dispatch]);
-    const setList = useCallback((list) => dispatch(setRequestList(list)), [dispatch]);
+    const addRequestToList = useCallback((data) => dispatch(addToList(data)), [dispatch]);
+    const setResponse = useCallback((key, data) => dispatch(setResponseToForm(key, data)), [dispatch]);
+    const resetRequest = useCallback(() => dispatch(resetRequestToForm()), [dispatch]);
 
     const params = form[PARAMS].map((item, ind) => (
         <Params index={ind} key={ind} field={PARAMS}/>));
@@ -41,17 +43,23 @@ const Form = () => {
     const filterDataForRequest = () => {
         const params = form.params.filter((item) => item.key.length || item.value.length);
         const headers = form.headers.filter((item) => item.key.length || item.value.length);
+
+      /*  const rawBody = form[RAW_BODY]?.length ? JSON.stringify(form[RAW_BODY]) : '';*/
         const body = form.body.filter((item) => item.key.length || item.value.length);
 
-        return  {...form, params, body, headers};
+        return {...form, params, body, headers};
     };
 
     const handleErrors = (data) => {
         resetError();
-        if (data.errorCode !== 0) {
+        if (data.errorCode === 1) {
             for (let key in data.errorDescription) {
                 setError(key, data.errorDescription[key])
             }
+            return false
+        }
+        else if (data.errorCode === 2) {
+            setResponseErr(data.errorDescription);
             return false
         }
         else {
@@ -59,25 +67,37 @@ const Form = () => {
         }
     };
 
-
     const handleSave = async () => {
         const data = filterDataForRequest();
 
         const res = await saveInList(data);
 
         const valid = handleErrors(res);
-        if(valid){
-            setList(res.list);
+        if (valid) {
+            addRequestToList(res.request);
         }
 
     };
 
     const handleSend = async () => {
+
         const data = filterDataForRequest();
         const res = await sendRequest(data);
         const valid = handleErrors(res);
-        if(valid){
-            setList(res.list);
+        if (valid) {
+            addRequestToList(res.request);
+            setResponse(BODY, res.response);
+            setResponse(HEADERS, res.headers);
+        }
+    };
+
+    const handleChangeRadio = (e) => {
+        changeField(CONTENT_TYPE, e.target.value);
+        if (e.target.value === 'raw'){
+            changeField(BODY, [{key:'', value:''}])
+        }
+        else{
+            changeField(RAW_BODY, '')
         }
     };
 
@@ -90,18 +110,18 @@ const Form = () => {
             <Button text={'Save'} onClick={handleSave}/>
             {errors[URL].length > 0 && <div className={style.error}>{errors[URL]}</div>}
             <div className={style.section}>
-                    <div className={style.sectionHeader}>Query Params</div>
-                    {errors[PARAMS].length > 0 && <div className={style.error}>{errors[PARAMS]}</div>}
-                    {params}
+                <div className={style.sectionHeader}>Query Params</div>
+                {errors[PARAMS].length > 0 && <div className={style.error}>{errors[PARAMS]}</div>}
+                {params}
 
-                    <div className={style.addMore}><span onClick={addMore(PARAMS)}>add more params</span></div>
+                <div className={style.addMore}><span onClick={addMore(PARAMS)}>add more params</span></div>
 
             </div>
             <div className={style.section}>
-                    <div className={style.sectionHeader}>Headers</div>
-                    {errors[HEADERS].length > 0 && <div className={style.error}>{errors[HEADERS]}</div>}
-                    {headers}
-                    <div className={style.addMore}><span onClick={addMore(HEADERS)}>add more params</span></div>
+                <div className={style.sectionHeader}>Headers</div>
+                {errors[HEADERS].length > 0 && <div className={style.error}>{errors[HEADERS]}</div>}
+                {headers}
+                <div className={style.addMore}><span onClick={addMore(HEADERS)}>add more params</span></div>
 
             </div>
             <div className={classNames(style.section, style.formDataWrap)}>
@@ -115,6 +135,7 @@ const Form = () => {
                     onChange={handleChangeRadio}
                 />
                 <RadioButton
+                    className={style.radioButton}
                     id={'multipart'}
                     name={'formData'}
                     value={'multipart/form-data'}
@@ -122,15 +143,34 @@ const Form = () => {
                     checked={form[CONTENT_TYPE] === 'multipart/form-data'}
                     onChange={handleChangeRadio}
                 />
+                <RadioButton
+                    id={'raw'}
+                    name={'formData'}
+                    value={'raw'}
+                    label={'raw'}
+                    checked={form[CONTENT_TYPE] === 'raw'}
+                    onChange={handleChangeRadio}
+                />
             </div>
 
             <div className={style.section}>
-                {errors[BODY].length > 0 && <div className={style.error}>{errors[BODY]}</div>}
-                <div>
-                    {bodyParams}
-                    <div className={style.addMore}><span onClick={addMore(BODY)}>add more params</span></div>
-                </div>
+                {form[CONTENT_TYPE] === 'raw' ?
+                    <textarea
+                        className={style.rawTextarea}
+                        value={form[RAW_BODY]}
+                        onChange = {(e) => changeField(RAW_BODY, e.target.value)}
+                    />
+                    : (<>
+                        {errors[BODY].length > 0 && <div className={style.error}>{errors[BODY]}</div>}
+                        <div>
+                            {bodyParams}
+                            <div className={style.addMore}><span onClick={addMore(BODY)}>add more params</span></div>
+                        </div>
+                    </>)}
 
+            </div>
+            <div className={style.resetWrapper}>
+                <Button onClick = {resetRequest} text = {'Reset'}/>
             </div>
 
             <div className={style.section}>
