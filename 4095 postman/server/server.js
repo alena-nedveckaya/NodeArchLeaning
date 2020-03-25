@@ -8,7 +8,7 @@ const fetch = require("isomorphic-fetch");
 
 const webServer = express();
 const port = '4095';
-const logFileName = path.join(__dirname, '_server.log');
+const logFileName = path.join(__dirname, './../_server.log');
 const requestListFile = path.join(__dirname, './../requestList.json');
 
 
@@ -89,9 +89,8 @@ webServer.post('/save', async (req, res) => {
         const rawData = await fs.readFile(requestListFile);
         list = JSON.parse(rawData);
         list.push(req.body);
-        await fs.writeFile(requestListFile, JSON.stringify(list)) .then(() => {
+        await fs.writeFile(requestListFile, JSON.stringify(list)) ;
             console.log('JSON saved');
-        });
 
     }
 
@@ -111,12 +110,19 @@ webServer.post('/send', async (req, res) => {
     }
 
     else {
-        const rawData = await fs.readFile(requestListFile);
-        list = JSON.parse(rawData);
-        list.push(req.body);
-        await fs.writeFile(requestListFile, JSON.stringify(list)) .then(() => {
-            console.log('JSON saved');
-        });
+        try {
+            const rawData = await fs.readFile(requestListFile);
+            list = JSON.parse(rawData);
+            list.push(req.body);
+            await fs.writeFile(requestListFile, JSON.stringify(list)).then(() => {
+                console.log('JSON saved');
+            });
+        }
+        catch (e) {
+            logLineAsync(logFileName,`[${port}] `+" cannot read file");
+            console.log(`[${port}] `+" cannot read file");
+            res.end()
+        }
         let body = '';
         if (req.body.contentType === 'application/x-www-form-urlencoded'){
             req.body.body.forEach((item, index) => {
@@ -173,7 +179,7 @@ webServer.get('/list', async(req, res) => {
     }
     catch (e) {
         logLineAsync(logFileName,`[${port}] `+" cannot read file");
-        console.log(`[${port}] `+" cannot read file");
+        console.log(`[${port}] `+" cannot read file" + e);
         res.end()
     }
 });
