@@ -9,7 +9,7 @@ const fetch = require("isomorphic-fetch");
 const webServer = express();
 const port = '4095';
 const logFileName = path.join(__dirname, './../_server.log');
-const requestListFile = path.join(__dirname, './../requestList.json');
+const requestListFile = path.join(__dirname, 'requestList.json');
 
 
 webServer.use(express.urlencoded({extended:true}));
