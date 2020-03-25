@@ -1,5 +1,7 @@
 .App {
-  margin: 20px 30px;
+  max-height: 100vh;
+  overflow: auto;
+  flex:auto
 }
 
 .App-logo {

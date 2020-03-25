@@ -22,7 +22,7 @@ const Response = props => {
 
                 >
                     <Panel title={'body'}>
-                        <textarea defaultValue={body} className={style.textarea}/>
+                        <div className={style.textarea}>{body}</div>
                     </Panel>
                     <Panel title={'headers'}>{items}</Panel>
                 </Tabs>

@@ -1,4 +1,5 @@
 .input{
-    width: 508px;
+    width: 453px;
     height: 27px;
+    flex-grow: 1;
 }

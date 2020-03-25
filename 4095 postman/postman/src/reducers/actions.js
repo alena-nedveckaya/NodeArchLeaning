@@ -33,7 +33,6 @@ export const resetResponse = () => {
 };
 
 export const changeFieldForm = (field, value) => {
-    console.log( '-', field, value)
     return {
         type: CHANGE_FORM_FIELD, field, value
     }

@@ -11,9 +11,11 @@ const port = '4095';
 const logFileName = path.join(__dirname, '_server.log');
 const requestListFile = path.join(__dirname, './../requestList.json');
 
+
 webServer.use(express.urlencoded({extended:true}));
 webServer.use(express.json());
-webServer.use(cors()) ;// Use this after the variable declaration
+webServer.use(cors()) ;
+webServer.use(express.static(path.join(__dirname,'./static')));
 
 function noEmptyValue(data) {
     let text = '';
@@ -70,6 +72,10 @@ function validation (data) {
    return errors
 };
 
+webServer.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, './static/index.html'))
+})
+
 webServer.post('/save', async (req, res) => {
     logLineAsync(logFileName,`[${port}] `+"/save called");
 
@@ -95,8 +101,6 @@ webServer.post('/save', async (req, res) => {
 webServer.post('/send', async (req, res) => {
     logLineAsync(logFileName,`[${port}] `+"/send called");
 
-    res.setHeader("Access-Control-Allow-Origin","*"); // разрешаем запросы с любого origin, вместо * здесь может быть ОДИН origin (протокол+домен+порт)
-    res.setHeader("Access-Control-Allow-Headers","Content-Type"); // разрешаем заголовок запроса Content-Type
     const errors = validation(req.body);
     let list=[];
     let response = {};
@@ -120,7 +124,10 @@ webServer.post('/send', async (req, res) => {
             })
         }
         else if (req.body.contentType === 'multipart/form-data'){
-            body = new FormData(req.body.body)
+            body = new FormData();
+            req.body.body.forEach((item, index) => {
+                body.append(item.key, item.value)
+            })
         }
         else if (req.body.contentType === 'raw'){
             body = req.body.rawBody;
@@ -129,7 +136,7 @@ webServer.post('/send', async (req, res) => {
         let {url} = req.body;
         const { headers, method, params} = req.body;
 
-        if (params.length && method === 'GET'){
+        if (params.length){
             url += '?';
             params.forEach((item, index) => {
                 url += `${index !== 0 ? '&' : ''}${item.key}=${encodeURIComponent(item.value)}`
@@ -143,7 +150,7 @@ webServer.post('/send', async (req, res) => {
             responseHeaders = _headers;
 
             response = await proxy_response.text();
-            console.log( 'proxy_response', response)
+           /* console.log( 'proxy_response', response)*/
             res.send({errorCode: 0, errorDescription: '', request: req.body, response, headers: {status, statusText, ...responseHeaders}})
         }
         catch (e) {

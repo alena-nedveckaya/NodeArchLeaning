@@ -144,7 +144,6 @@ export const reducer = (state, action) => {
         }
 
         case RESET_REQUEST: {
-            console.log('initialState', initialState)
             return {
                 ...state,
                 form: {...initialState.form},

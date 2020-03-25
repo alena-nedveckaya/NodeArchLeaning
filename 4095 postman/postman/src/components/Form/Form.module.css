@@ -1,16 +1,27 @@
+.wrapper{
+    margin: 20px;
+}
+
+.urlWrapper{
+    display: flex;
+    max-width: 730px;
+}
+
 .section{
     margin-top: 20px;
 
 }
+
+
 
 .sectionHeader{
     margin-bottom: 10px;
 }
 
 .addMore{
-    width: 735px;
     text-align: end;
     color: cadetblue;
+    max-width: 730px;
 }
 
 .addMore span{
@@ -31,12 +42,16 @@
 }
 
 .rawTextarea{
-    width: 400px;
+    width: 730px;
     height: 300px;
 }
 
-.resetWrapper{
+.actionButtons{
     display: flex;
-    flex-direction: row-reverse;
+    flex-direction: row;
     margin-top: 20px;
+}
+
+.actionButtons button{
+    margin-right: 20px;
 }
