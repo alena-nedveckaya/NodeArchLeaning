@@ -35,7 +35,7 @@ const options =  [
 
 app.get('/', (req, res) => {
   res.sendFile('/public/index.html')
-})
+});
 
 app.get('/variants', (req, res) => {
 
