@@ -164,27 +164,39 @@ webServer.post('/send', async (req, res) => {
 
 webServer.get('/list', async(req, res) => {
     logLineAsync(logFileName,`[${port}] `+"/list called");
+    console.log(`[${port}] `+"/list called", requestListFile)
 
-
-
-    const rawData = await fs.readFile(requestListFile);
-    const data = JSON.parse(rawData);
-    res.send(data)
+    try {
+        const rawData = await fs.readFile(requestListFile);
+        const data = JSON.parse(rawData);
+        res.send(data)
+    }
+    catch (e) {
+        logLineAsync(logFileName,`[${port}] `+" cannot read file");
+        console.log(`[${port}] `+" cannot read file");
+        res.end()
+    }
 });
 
 webServer.post('/deleteItem', async (req, res) => {
     logLineAsync(logFileName,`[${port}] `+"/deleteIndex called");
 
-    const rawData = await fs.readFile(requestListFile);
-    let list = JSON.parse(rawData);
-    list.splice(req.body.deleteIndex, 1);
-    fs.writeFile(requestListFile, JSON.stringify(list), (err) => {
-        if (err) throw err;
-        logLineAsync(logFileName, `[${port}] ` + 'list after deleting saved!');
-        console.log('list saved!')
-    });
+    try {
+        const rawData = await fs.readFile(requestListFile);
+        let list = JSON.parse(rawData);
+        list.splice(req.body.deleteIndex, 1);
+        fs.writeFile(requestListFile, JSON.stringify(list), (err) => {
+            if (err) throw err;
+            logLineAsync(logFileName, `[${port}] ` + 'list after deleting saved!');
+            console.log('list saved!')
+        });
 
-    res.send(list)
+        res.send(list)
+    } catch (e) {
+        logLineAsync(logFileName,`[${port}] `+" cannot deleteItem");
+        console.log(`[${port}] `+" cannot deleteItem");
+        res.end()
+    }
 });
 
 webServer.listen(port, () => console.log(`server is running on ${port} `));

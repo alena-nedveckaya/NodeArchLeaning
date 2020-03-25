@@ -1,4 +1,4 @@
-const backEndServer = 'http://localhost:4095';
+const backEndServer = 'http://alena.e-learning.by:4095';
 
 export const saveInList = async ( body ) =>  {
     return await api({
@@ -23,7 +23,7 @@ export const getRequestList = async () => {
 };
 
 export const deleteRequestFromList = async (data) => {
-    console.log( 'data' , data)
+
     return await api({
         url: '/deleteItem',
         method: 'POST',
