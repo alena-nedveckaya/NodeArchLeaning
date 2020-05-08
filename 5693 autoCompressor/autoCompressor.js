@@ -58,7 +58,7 @@ async function gzipFiles(dirName, parent) {
             console.log( `gzip для файла ${baseName} есть`);
             const statZipFile = await fsp.stat((path.resolve(parent, `${baseName}.gz`)));
             const dateFormationZipFile = statZipFile.birthtimeMs;
-            const dateFormationFile = statFile.birthtimeMs;
+            const dateFormationFile = statFile.mtimeMs;
 
             if (dateFormationFile > dateFormationZipFile) {
                 console.log( `gzip для файла ${baseName} устарел`);
