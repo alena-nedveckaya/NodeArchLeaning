@@ -36,7 +36,7 @@ async function do_gzip(input, output) {
         console.log(`сформировался gzip для файла ${input} `);
         if (queue.length){
             do_gzip(queue[0][0], queue[0][1]);
-            queue.pop()
+            queue.shift()
         }
     }
     else {
