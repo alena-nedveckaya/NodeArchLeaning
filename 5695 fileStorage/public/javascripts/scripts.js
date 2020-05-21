@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", getUploadedFiles);
-const backEndServer = 'http://localhost:5695';
+// const backEndServer = 'http://localhost:5695';
+const backEndServer = 'http://http://46.101.255.222:5695';
 
 const uploadedFiles = document.querySelector('.uploadedFiles');
 uploadedFiles.addEventListener('click', downloadFile);
