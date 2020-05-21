@@ -1,4 +1,5 @@
-const backEndServer = 'http://alena.e-learning.by:4095';
+// const backEndServer = 'http://alena.e-learning.by:4095';
+const backEndServer='http://localhost:4095';
 
 export const saveInList = async ( body ) =>  {
     return await api({
