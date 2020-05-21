@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", getUploadedFiles);
 // const backEndServer = 'http://localhost:5695';
-const backEndServer = 'http://http://46.101.255.222:5695';
+const backEndServer = 'http://46.101.255.222:5695';
 
 const uploadedFiles = document.querySelector('.uploadedFiles');
 uploadedFiles.addEventListener('click', downloadFile);
@@ -9,7 +9,7 @@ const percentContainer = document.querySelector('.uploadPercent');
 const form = document.forms.namedItem("fileInfo");
 form.addEventListener('submit', sendForm);
 
-const url = `ws://localhost:5696`;
+const url = `ws://46.101.255.222:5696`;
 let ws = null;
 start(url);
 
