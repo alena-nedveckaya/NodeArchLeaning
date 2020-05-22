@@ -14,7 +14,7 @@ const url = `ws://46.101.255.222:5696`;
 let ws = null;
 
 
-let reNewSocketTimer = null;
+let reOpenTimer = null;
 let keepAliveTimer = null;
 
 function start(websocketServerLocation){
@@ -23,7 +23,7 @@ function start(websocketServerLocation){
     ws.onopen =  async function (e) {
         console.log('соединение установлено');
         addError({errorInfo:""});
-        keepAlive();
+
         ws.send('KEEP_ME_ALIVE');
     };
 
@@ -42,9 +42,10 @@ function start(websocketServerLocation){
             case 'ID':
                 connectionId = message.data;
                 const data = new FormData(form);
-
+                keepAlive();
                 uploadDataService(data);
                 console.log('connectionId', connectionId);
+                reOpenTimer = null;
                 break;
             case 'UPLOAD_PERCENT':
                 uploadPercent = message.data;
@@ -105,7 +106,8 @@ async function getUploadedFiles() {
             })
         }
         catch (e) {
-            addError({errorInfo: 'Ошибка при загрузке'})
+            addError({errorInfo: 'Ошибка при загрузке'});
+            clearInterval(keepAliveTimer);
         }
 };
 
@@ -138,7 +140,8 @@ async function uploadDataService (data) {
     }
     catch (e) {
         addError({errorInfo:'Ошибка при загрузке'});
-        setTimeout(() => sendForm(), 3000);
+        if (!reOpenTimer)
+            reOpenTimer = setTimeout(() => sendForm(), 3000);
         console.error(e)
     }
 }
