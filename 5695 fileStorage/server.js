@@ -93,6 +93,8 @@ server.use(multer({dest: 'uploads/'}).single("file"));
 
 server.post('/uploadFile', function (req, res) {
 
+    const id = req.headers.connectionid;
+
      fs.readFile(imagesInfoFile, (err, data) => {
          if (err)
              logLineAsync(logFileName,`[${port}] /uploadFile readFile ${err}` );
@@ -116,7 +118,7 @@ server.post('/uploadFile', function (req, res) {
                 console.log('The file has been saved!');
                 logLineAsync(logFileName,`[${port}] `+"The file has been saved");
             });
-
+        clients[id].connection.terminate();
          res.json({data:imagesInfo[imageInfo.filename]});
         });
 
