@@ -48,27 +48,27 @@ const id = req.headers.connectionid;
 let clients  = {};
 
 wss.on('connection', function connection(ws, req) {
-    const id = req.headers['sec-websocket-key'];
+        const id = req.headers['sec-websocket-key'];
 
-    const idData = JSON.stringify({type: 'ID', data: id});
+        const idData = JSON.stringify({type: 'ID', data: id});
 
-    logLineAsync(logFileName,`[${port}] connect ${id}`);
+        logLineAsync(logFileName,`[${port}] connect ${id}`);
 
-    ws.send(idData);
+        ws.send(idData);
 
-    clients[id] = ({connection: ws, lastKeepAlive: Date.now()});
+        clients[id] = ({connection: ws, lastKeepAlive: Date.now()});
 
-    ws.on('message', message => {
-        if ( message==="KEEP_ME_ALIVE" ) {
-            for(let key in clients){
-                if ( clients[key].connection===ws )
-                    clients[key].lastKeepAlive=Date.now();
-            };
-        }
-        else
-            console.log('сервером получено сообщение от клиента: '+message)
+        ws.on('message', message => {
+            if ( message==="KEEP_ME_ALIVE" ) {
+                for(let key in clients){
+                    if ( clients[key].connection===ws )
+                        clients[key].lastKeepAlive=Date.now();
+                };
+            }
+            else
+                console.log('сервером получено сообщение от клиента: '+message)
+        });
     });
-});
 
 setInterval(()=>{
     for(let key in clients){
@@ -117,14 +117,13 @@ server.post('/uploadFile', function (req, res) {
                 logLineAsync(logFileName,`[${port}] `+"The file has been saved");
             });
 
-            for (let key in clients){
-                clients[key].connection.send(JSON.stringify({type:'UPLOADED_INFO', data:imagesInfo[imageInfo.filename]}))
-            }
+         res.json({data:imagesInfo[imageInfo.filename]});
+        });
 
-        })
 });
 
 server.get('/files', (req, res) => {
+
     fs.readFile(imagesInfoFile, (err, data) => {
         if (err)
             logLineAsync(logFileName,`[${port}] /files readFile ${err}` );
@@ -136,6 +135,7 @@ server.get('/files', (req, res) => {
         for(let key in fileData){
             names.push({originalName: fileData[key].originalName, name: key});
         }
+
         res.json(names)
     })
 });

@@ -9,31 +9,29 @@ const percentContainer = document.querySelector('.uploadPercent');
 const form = document.forms.namedItem("fileInfo");
 form.addEventListener('submit', sendForm);
 
+// const url = `ws://localhost:5696`;
 const url = `ws://46.101.255.222:5696`;
 let ws = null;
-start(url);
+
 
 let reNewSocketTimer = null;
 let keepAliveTimer = null;
 
 function start(websocketServerLocation){
+
     ws = new WebSocket(websocketServerLocation);
     ws.onopen =  async function (e) {
         console.log('соединение установлено');
-        clearInterval(reNewSocketTimer);
         addError({errorInfo:""});
         keepAlive();
+        ws.send('KEEP_ME_ALIVE');
     };
 
     ws.onclose = function () {
         console.log("соединение с сервером закрыто");
-        addError({errorInfo:"Сервер недоступен"});
         percentContainer.textContent = '';
         ws=null;
         clearInterval(keepAliveTimer);
-        reNewSocketTimer = null;
-
-        setTimeout(() => start(url) , 5000)
     };
 
     ws.onmessage = async function (res) {
@@ -43,6 +41,9 @@ function start(websocketServerLocation){
         switch (message.type) {
             case 'ID':
                 connectionId = message.data;
+                const data = new FormData(form);
+
+                uploadDataService(data);
                 console.log('connectionId', connectionId);
                 break;
             case 'UPLOAD_PERCENT':
@@ -52,17 +53,14 @@ function start(websocketServerLocation){
             case 'ERROR':
                 addError({errorInfo: message.data});
                 break;
-            case 'UPLOADED_INFO':
-
-                 // else
-                     addFileToList(message.data);
-                form.reset();
-                percentContainer.textContent = '';
-                break;
         }
     };
 
     ws.onerror = error => {
+        addError({errorInfo:"Сервер недоступен"});
+        percentContainer.textContent = '';
+        setTimeout(() => sendForm() , 5000);
+        clearInterval(keepAliveTimer);
         console.log('WebSocket error:',error);
     };
 }
@@ -97,14 +95,18 @@ function addError (error) {
 }
 
 async function getUploadedFiles() {
+        try {
+            const response = await fetch(`${backEndServer}/files`);
 
-        const response = await fetch(`${backEndServer}/files`);
+            const data = await response.json();
 
-        const data = await response.json();
-
-        data.forEach((item) => {
-            addFileToList(item)
-        })
+            data.forEach((item) => {
+                addFileToList(item)
+            })
+        }
+        catch (e) {
+            addError({errorInfo: 'Ошибка при загрузке'})
+        }
 };
 
 let connectionId = null;
@@ -113,6 +115,7 @@ let uploadPercent = null;
 
 
 async function uploadDataService (data) {
+
     try {
         const response = await fetch(`${backEndServer}/uploadFile`, {
             method: 'POST',
@@ -124,21 +127,26 @@ async function uploadDataService (data) {
 
         const res = await response.json();
 
+        addFileToList(res.data);
+        form.reset();
+        percentContainer.textContent = '';
+
+
         if (res.error){
-            addError(message.data.error)
+            addError(res.error)
         }
     }
     catch (e) {
+        addError({errorInfo:'Ошибка при загрузке'});
+        setTimeout(() => sendForm(), 3000);
         console.error(e)
     }
 }
 
 async function sendForm(e) {
-    e.preventDefault();
 
-    const data = new FormData(form);
-
-    uploadDataService(data);
+    if (e) e.preventDefault();
+    start(url);
 };
 
 async function downloadFile(e) {
@@ -172,7 +180,7 @@ async function downloadFile(e) {
         document.body.removeChild(link);
     }
     else {
-        console.error('error loading bitmap');
+        console.error('error loading');
     }
 }
 catch ( err ) {
